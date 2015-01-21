@@ -64,7 +64,10 @@ int JumpingNetworkManager::ardiscoveryConnect()
     ARSAL_PRINT(ARSAL_PRINT_INFO, TAG.c_str(), "- ARDiscovery Connection");
 
     eARDISCOVERY_ERROR err = ARDISCOVERY_OK;
-    ARDISCOVERY_Connection_ConnectionData_t *discoveryData = ARDISCOVERY_Connection_New (ARDISCOVERY_Connection_SendJsonCallback, ARDISCOVERY_Connection_ReceiveJsonCallback, this, &err);
+    ARDISCOVERY_Connection_ConnectionData_t *discoveryData = ARDISCOVERY_Connection_New(ARDISCOVERY_Connection_SendJsonCallback,
+													ARDISCOVERY_Connection_ReceiveJsonCallback,
+													this,
+													&err);
     if (discoveryData == nullptr || err != ARDISCOVERY_OK)
     {
       ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "Error while creating discoveryData : %s", ARDISCOVERY_Error_ToString(err));

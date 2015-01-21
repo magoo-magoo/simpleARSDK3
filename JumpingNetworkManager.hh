@@ -62,6 +62,7 @@ private:
 
   ARSAL_Thread_t	rxThread_;
   ARSAL_Thread_t	txThread_;
+
   int			d2cPort_;
   int			c2dPort_;
 
