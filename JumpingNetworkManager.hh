@@ -1,7 +1,7 @@
 #ifndef JUMPINGNETWORKMANAGER_H_
 # define JUMPINGNETWORKMANAGER_H_
 
-# include <memory>
+# include <string>
 
 extern "C" {
 # include <libARSAL/ARSAL.h>
