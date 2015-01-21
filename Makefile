@@ -1,7 +1,8 @@
 EXEC_NAME = SimpleSumo
 
 #########PUT CORRECT PATH############
-SDK_DIR =/home/magoo/projects/parrot/ARSDKBuildUtils
+SDK_DIR = $(SDK_PARROT)/ARSDKBuildUtils
+
 IDIR =./
 
 RM = rm -f
