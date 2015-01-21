@@ -1,6 +1,10 @@
 
 #include "JumpingNetworkManager.hh"
 
+const std::string JumpingNetworkManager::TAG = "SimpleSumo";
+const std::string JumpingNetworkManager::JS_IP_ADDRESS = "192.168.2.1";
+
+
 JumpingNetworkManager::JumpingNetworkManager()
 {
   this->alManager_ = nullptr;
@@ -57,22 +61,25 @@ int JumpingNetworkManager::ardiscoveryConnect()
 {
     int failed = 0;
 
-    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG, "- ARDiscovery Connection");
+    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG.c_str(), "- ARDiscovery Connection");
 
     eARDISCOVERY_ERROR err = ARDISCOVERY_OK;
-    ARDISCOVERY_Connection_ConnectionData_t *discoveryData = ARDISCOVERY_Connection_New (ARDISCOVERY_Connection_SendJsonCallback, ARDISCOVERY_Connection_ReceiveJsonCallback, this, &err);
+    ARDISCOVERY_Connection_ConnectionData_t *discoveryData = ARDISCOVERY_Connection_New(ARDISCOVERY_Connection_SendJsonCallback,
+													ARDISCOVERY_Connection_ReceiveJsonCallback,
+													this,
+													&err);
     if (discoveryData == nullptr || err != ARDISCOVERY_OK)
     {
-      ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "Error while creating discoveryData : %s", ARDISCOVERY_Error_ToString(err));
+      ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "Error while creating discoveryData : %s", ARDISCOVERY_Error_ToString(err));
         failed = 1;
     }
 
     if (!failed)
     {
-      err = ARDISCOVERY_Connection_ControllerConnection(discoveryData, JS_DISCOVERY_PORT, JS_IP_ADDRESS);
+      err = ARDISCOVERY_Connection_ControllerConnection(discoveryData, JS_DISCOVERY_PORT, JS_IP_ADDRESS.c_str());
         if (err != ARDISCOVERY_OK)
         {
-	  ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "Error while opening discovery connection : %s", ARDISCOVERY_Error_ToString(err));
+	  ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "Error while opening discovery connection : %s", ARDISCOVERY_Error_ToString(err));
             failed = 1;
         }
     }
@@ -114,7 +121,7 @@ eARDISCOVERY_ERROR JumpingNetworkManager::ARDISCOVERY_Connection_ReceiveJsonCall
       ::strncpy(json, (char *)dataRx, dataRxSize);
         json[dataRxSize] = '\0';
 
-	ARSAL_PRINT(ARSAL_PRINT_DEBUG, TAG, "    - ReceiveJson:%s ", json);
+	ARSAL_PRINT(ARSAL_PRINT_DEBUG, TAG.c_str(), "    - ReceiveJson:%s ", json);
 
         //normally c2dPort should be read from the json here.
 
@@ -136,7 +143,7 @@ int JumpingNetworkManager::startNetwork()
     eARNETWORKAL_ERROR netAlError = ARNETWORKAL_OK;
     int pingDelay = 0; // 0 means default, -1 means no ping
 
-    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG, "- Start ARNetwork");
+    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG.c_str(), "- Start ARNetwork");
 
     // Create the ARNetworkALManager
     this->alManager_ = ARNETWORKAL_Manager_New(&netAlError);
@@ -148,7 +155,7 @@ int JumpingNetworkManager::startNetwork()
     if (!failed)
     {
         // Initilize the ARNetworkALManager
-        netAlError = ARNETWORKAL_Manager_InitWifiNetwork(this->alManager_, JS_IP_ADDRESS, JS_C2D_PORT, JS_D2C_PORT, 1);
+        netAlError = ARNETWORKAL_Manager_InitWifiNetwork(this->alManager_, JS_IP_ADDRESS.c_str(), JS_C2D_PORT, JS_D2C_PORT, 1);
         if (netAlError != ARNETWORKAL_OK)
         {
             failed = 1;
@@ -170,13 +177,13 @@ int JumpingNetworkManager::startNetwork()
         // Create and start Tx and Rx threads.
         if (ARSAL_Thread_Create(&(this->rxThread_), ARNETWORK_Manager_ReceivingThreadRun, this->netManager_) != 0)
         {
-            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "Creation of Rx thread failed.");
+            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "Creation of Rx thread failed.");
             failed = 1;
         }
 
         if (ARSAL_Thread_Create(&(this->txThread_), ARNETWORK_Manager_SendingThreadRun, this->netManager_) != 0)
         {
-            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "Creation of Tx thread failed.");
+            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "Creation of Tx thread failed.");
             failed = 1;
         }
     }
@@ -186,12 +193,12 @@ int JumpingNetworkManager::startNetwork()
     {
         if (netAlError != ARNETWORKAL_OK)
         {
-            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "ARNetWorkAL Error : %s", ARNETWORKAL_Error_ToString(netAlError));
+            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "ARNetWorkAL Error : %s", ARNETWORKAL_Error_ToString(netAlError));
         }
 
         if (netError != ARNETWORK_OK)
         {
-            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "ARNetWork Error : %s", ARNETWORK_Error_ToString(netError));
+            ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG.c_str(), "ARNetWork Error : %s", ARNETWORK_Error_ToString(netError));
         }
     }
 
@@ -201,7 +208,7 @@ int JumpingNetworkManager::startNetwork()
 
 void JumpingNetworkManager::stopNetwork()
 {
-    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG, "- Stop ARNetwork");
+    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG.c_str(), "- Stop ARNetwork");
 
     // ARNetwork cleanup
     if (this->netManager_ != nullptr)
@@ -235,7 +242,7 @@ void JumpingNetworkManager::stopNetwork()
 
 void JumpingNetworkManager::onDisconnectNetwork(ARNETWORK_Manager_t *, ARNETWORKAL_Manager_t *, void *)
 {
-    ARSAL_PRINT(ARSAL_PRINT_DEBUG, TAG, "onDisconnectNetwork ...");
+    ARSAL_PRINT(ARSAL_PRINT_DEBUG, TAG.c_str(), "onDisconnectNetwork ...");
 }
 
 int JumpingNetworkManager::sendPilotingPosture(eARCOMMANDS_JUMPINGSUMO_PILOTING_POSTURE_TYPE type)
@@ -246,7 +253,7 @@ int JumpingNetworkManager::sendPilotingPosture(eARCOMMANDS_JUMPINGSUMO_PILOTING_
     eARCOMMANDS_GENERATOR_ERROR cmdError;
     eARNETWORK_ERROR netError = ARNETWORK_ERROR;
 
-    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG, "- Send Piloting Posture %d", type);
+    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG.c_str(), "- Send Piloting Posture %d", type);
 
     // Send Posture command
     cmdError = ARCOMMANDS_Generator_GenerateJumpingSumoPilotingPosture(cmdBuffer, sizeof(cmdBuffer), &cmdSize, type);
@@ -257,18 +264,49 @@ int JumpingNetworkManager::sendPilotingPosture(eARCOMMANDS_JUMPINGSUMO_PILOTING_
 
     if ((cmdError != ARCOMMANDS_GENERATOR_OK) || (netError != ARNETWORK_OK))
     {
-        ARSAL_PRINT(ARSAL_PRINT_WARNING, TAG, "Failed to send Posture command. cmdError:%d netError:%s", cmdError, ARNETWORK_Error_ToString(netError));
+        ARSAL_PRINT(ARSAL_PRINT_WARNING, TAG.c_str(), "Failed to send Posture command. cmdError:%d netError:%s", cmdError, ARNETWORK_Error_ToString(netError));
         sentStatus = 0;
     }
 
     return sentStatus;
 }
 
+int JumpingNetworkManager::sendPilotingPCMD(unsigned char flag, char speed, char turn)
+{
+    int sentStatus = 1;
+    u_int8_t cmdBuffer[128];
+    int32_t cmdSize = 0;
+    eARCOMMANDS_GENERATOR_ERROR cmdError;
+    eARNETWORK_ERROR netError = ARNETWORK_ERROR;
+
+    ARSAL_PRINT(ARSAL_PRINT_INFO, TAG.c_str(),
+		"- Send Piloting PCMD flag: %d speed: %d turn: %d", flag, speed, turn);
+
+    // Send Posture command
+    cmdError = ARCOMMANDS_Generator_GenerateJumpingSumoPilotingPCMD(cmdBuffer,
+								    sizeof(cmdBuffer),
+								    &cmdSize,
+								    flag, speed, turn);
+    if (cmdError == ARCOMMANDS_GENERATOR_OK)
+    {
+        netError = ARNETWORK_Manager_SendData(this->netManager_, JS_NET_CD_ACK_ID, cmdBuffer, cmdSize, nullptr, &(arnetworkCmdCallback), 1);
+    }
+
+    if ((cmdError != ARCOMMANDS_GENERATOR_OK) || (netError != ARNETWORK_OK))
+    {
+        ARSAL_PRINT(ARSAL_PRINT_WARNING, TAG.c_str(), "Failed to send Posture command. cmdError:%d netError:%s", cmdError, ARNETWORK_Error_ToString(netError));
+        sentStatus = 0;
+    }
+
+    return sentStatus;
+}
+
+
 eARNETWORK_MANAGER_CALLBACK_RETURN JumpingNetworkManager::arnetworkCmdCallback(int buffer_id, uint8_t *, void *, eARNETWORK_MANAGER_CALLBACK_STATUS cause)
 {
     eARNETWORK_MANAGER_CALLBACK_RETURN retval = ARNETWORK_MANAGER_CALLBACK_RETURN_DEFAULT;
 
-    ARSAL_PRINT(ARSAL_PRINT_DEBUG, TAG, "    - arnetworkCmdCallback %d, cause:%d ", buffer_id, cause);
+    ARSAL_PRINT(ARSAL_PRINT_DEBUG, TAG.c_str(), "    - arnetworkCmdCallback %d, cause:%d ", buffer_id, cause);
 
     if (cause == ARNETWORK_MANAGER_CALLBACK_STATUS_TIMEOUT)
     {

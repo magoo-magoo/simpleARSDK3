@@ -1,22 +1,27 @@
+#include <iostream>
 #include "JumpingNetworkManager.hh"
 
-int	main()
+int main()
 {
-  JumpingNetworkManager netManager;
+ JumpingNetworkManager netManager;
 
   if (netManager.ardiscoveryConnect())
     {
-      return 1;
+     return 1;
     }
 
   if (netManager.startNetwork())
     {
       return 1;
     }
-  //netManager.sendPilotingPosture(ARCOMMANDS_JUMPINGSUMO_PILOTING_POSTURE_TYPE_KICKER);
+
+
+  netManager.sendPilotingPCMD(1, 50, 20);
+
+  netManager.sendPilotingPosture(ARCOMMANDS_JUMPINGSUMO_PILOTING_POSTURE_TYPE_KICKER);
+
   //netManager.sendPilotingPosture(ARCOMMANDS_JUMPINGSUMO_PILOTING_POSTURE_TYPE_JUMPER);
-  netManager.sendPilotingPosture(ARCOMMANDS_JUMPINGSUMO_PILOTING_POSTURE_TYPE_STANDING);
+  //netManager.sendPilotingPosture(ARCOMMANDS_JUMPINGSUMO_PILOTING_POSTURE_TYPE_STANDING);
 
-
-  return (0);
+  return 0;
 }

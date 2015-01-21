@@ -1,7 +1,7 @@
 EXEC_NAME = SimpleSumo
 
-########PUT CORRECT PATH#############
-SDK_DIR =CORRECT_PATH/ARSDKBuildUtils
+#########PUT CORRECT PATH############
+SDK_DIR = $(SDK_PARROT)/ARSDKBuildUtils
 
 IDIR =./
 
